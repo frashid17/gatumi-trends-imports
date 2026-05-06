@@ -208,6 +208,50 @@ export async function getWhatsAppNumberAdmin(): Promise<string> {
   return (data?.value as string) ?? "";
 }
 
+async function getSiteSettingValuePublic(key: string): Promise<string> {
+  const supabase = createPublicSupabaseClient();
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", key)
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.value as string) ?? "";
+}
+
+async function getSiteSettingValueAdmin(key: string): Promise<string> {
+  const supabase = createAdminSupabaseClient();
+  const { data, error } = await supabase
+    .from("site_settings")
+    .select("value")
+    .eq("key", key)
+    .maybeSingle();
+  if (error) throw error;
+  return (data?.value as string) ?? "";
+}
+
+export async function getFloatingContactNumbersPublic(): Promise<{
+  whatsappNumber: string;
+  callNumber: string;
+}> {
+  const [whatsappNumber, callNumber] = await Promise.all([
+    getSiteSettingValuePublic("floating_whatsapp_number"),
+    getSiteSettingValuePublic("floating_call_number"),
+  ]);
+  return { whatsappNumber, callNumber };
+}
+
+export async function getFloatingContactNumbersAdmin(): Promise<{
+  whatsappNumber: string;
+  callNumber: string;
+}> {
+  const [whatsappNumber, callNumber] = await Promise.all([
+    getSiteSettingValueAdmin("floating_whatsapp_number"),
+    getSiteSettingValueAdmin("floating_call_number"),
+  ]);
+  return { whatsappNumber, callNumber };
+}
+
 function normalizeProductRows(data: unknown): ProductRow[] {
   return (data as ProductRow[] | null)?.map(normalizeProductRow) ?? [];
 }
