@@ -39,8 +39,8 @@ export default async function HomePage() {
   }
 
   return (
-    <div className="relative">
-      <section className="relative mx-auto max-w-6xl px-3 pb-12 pt-6 sm:px-6 sm:pb-20 sm:pt-14">
+    <div className="relative isolate pb-[calc(5rem+env(safe-area-inset-bottom))] sm:pb-12">
+      <section className="relative mx-auto max-w-6xl min-w-0 px-3 pb-12 pt-6 sm:px-6 sm:pb-20 sm:pt-14">
         <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-[11px] font-medium leading-snug text-[var(--foreground-muted)] backdrop-blur-sm sm:px-4 sm:text-sm">
           <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--gold)]" aria-hidden />
           <span className="min-w-0">
@@ -76,17 +76,19 @@ export default async function HomePage() {
           </Link>
         </div>
 
-        <div className="mt-12 border-t border-[var(--border)] pt-8 sm:mt-16 sm:pt-10">
-          <div className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-8">
+        <div className="mt-10 border-t border-[var(--border)] pt-10 sm:mt-16 sm:pt-10">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-x-8 sm:gap-y-8 lg:grid-cols-4">
             {[
               { n: String(categories.length || "—"), l: "Categories" },
               { n: CURRENCY_CODE, l: "Kenya Shillings" },
               { n: "WhatsApp", l: "Order & quotes" },
               { n: "24/7", l: "Browse on mobile" },
             ].map((s) => (
-              <div key={s.l}>
-                <p className="font-display text-xl font-bold text-[var(--gold)] sm:text-3xl">{s.n}</p>
-                <p className="mt-1 text-xs text-[var(--foreground-muted)] sm:text-sm">{s.l}</p>
+              <div key={s.l} className="min-w-0">
+                <p className="font-display break-words text-2xl font-bold leading-tight text-[var(--gold)] sm:break-normal sm:text-3xl">
+                  {s.n}
+                </p>
+                <p className="mt-1 text-sm leading-snug text-[var(--foreground-muted)]">{s.l}</p>
               </div>
             ))}
           </div>
