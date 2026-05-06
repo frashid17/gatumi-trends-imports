@@ -8,6 +8,8 @@ import { AppHeader } from "@/components/app-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ThemeInitScript } from "@/components/theme-init";
 import { ThemeProvider } from "@/components/theme-provider";
+import { FloatingContactButtons } from "@/components/floating-contact-buttons";
+import { CustomerFacingOnly } from "@/components/customer-facing-only";
 import { isAdminUser } from "@/lib/admin";
 import "./globals.css";
 
@@ -67,13 +69,16 @@ export default async function RootLayout({
         <head>
           <ThemeInitScript />
         </head>
-        <body className="min-h-dvh flex flex-col bg-background text-foreground">
+        <body className="min-h-dvh flex flex-col overflow-x-hidden bg-background text-foreground">
           <ThemeProvider>
             <CartProvider>
               <WishlistProvider>
                 <AppHeader isAdmin={isAdmin} />
-                <main className="flex-1 bg-background text-foreground">{children}</main>
+                <main className="min-w-0 flex-1 bg-background text-foreground">{children}</main>
                 <SiteFooter />
+                <CustomerFacingOnly>
+                  <FloatingContactButtons />
+                </CustomerFacingOnly>
               </WishlistProvider>
             </CartProvider>
           </ThemeProvider>
