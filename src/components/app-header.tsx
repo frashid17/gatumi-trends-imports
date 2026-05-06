@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SignInButton, SignUpButton, UserButton, useAuth } from "@clerk/nextjs";
@@ -33,6 +34,11 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
   const { totalItems } = useCart();
   const { count: wishCount } = useWishlist();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [portalReady, setPortalReady] = useState(false);
+
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
 
   useEffect(() => {
     setMenuOpen(false);
@@ -178,121 +184,124 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
         </div>
       </div>
 
-      {/* Mobile drawer — slides from right */}
-      {menuOpen ? (
-        <>
-          <button
-            type="button"
-            className="fixed inset-0 z-[60] bg-black/55 backdrop-blur-[2px] md:hidden"
-            aria-label="Close menu"
-            onClick={() => setMenuOpen(false)}
-          />
-          <aside
-            id="mobile-nav-drawer"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="mobile-nav-drawer-title"
-            className="fixed inset-y-0 right-0 z-[70] flex w-[min(22rem,calc(100vw-2rem))] flex-col border-l border-[var(--border)] bg-[var(--surface-solid)] shadow-[-12px_0_40px_rgba(0,0,0,0.35)] md:hidden"
-          >
-            <div className="flex items-center justify-between border-b border-[var(--border)] px-4 py-4">
-              <p
-                id="mobile-nav-drawer-title"
-                className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
-              >
-                Menu
-              </p>
+      {/* Portal: backdrop-filter on <header> traps fixed descendants — render drawer on document.body */}
+      {portalReady && menuOpen
+        ? createPortal(
+            <>
               <button
                 type="button"
-                className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--foreground-muted)] transition hover:bg-[var(--nav-hover)] hover:text-[var(--foreground)]"
+                className="fixed inset-0 z-[100] bg-black/55 backdrop-blur-[2px] md:hidden"
                 aria-label="Close menu"
                 onClick={() => setMenuOpen(false)}
+              />
+              <aside
+                id="mobile-nav-drawer"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="mobile-nav-drawer-title"
+                className="fixed inset-y-0 right-0 z-[110] flex h-[100dvh] max-h-[100dvh] w-[min(22rem,calc(100vw-2rem))] min-h-0 flex-col border-l border-[var(--border)] bg-[var(--surface-solid)] shadow-[-12px_0_40px_rgba(0,0,0,0.35)] md:hidden"
               >
-                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            <nav className="flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-              <ul className="space-y-1">
-                <li>
-                  <Link href="/products" className={drawerLinkClass} onClick={() => setMenuOpen(false)}>
-                    Products
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/shop" className={drawerLinkClass} onClick={() => setMenuOpen(false)}>
-                    Categories
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/wishlist"
-                    className={`${drawerLinkClass} justify-between gap-4`}
+                <div className="flex shrink-0 items-center justify-between border-b border-[var(--border)] px-4 py-4">
+                  <p
+                    id="mobile-nav-drawer-title"
+                    className="text-sm font-bold uppercase tracking-[0.2em] text-[var(--foreground)]"
+                  >
+                    Menu
+                  </p>
+                  <button
+                    type="button"
+                    className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-[var(--border)] text-[var(--foreground-muted)] transition hover:bg-[var(--nav-hover)] hover:text-[var(--foreground)]"
+                    aria-label="Close menu"
                     onClick={() => setMenuOpen(false)}
                   >
-                    <span>Wishlist</span>
-                    {wishCount > 0 ? (
-                      <span className="rounded-full bg-[var(--gold)]/25 px-2 py-0.5 text-xs font-semibold text-[var(--gold)] tabular-nums">
-                        {wishCount}
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    href="/cart"
-                    className={`${drawerLinkClass} justify-between gap-4`}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <span>Cart</span>
-                    {totalItems > 0 ? (
-                      <span className="rounded-full bg-[var(--gold)] px-2 py-0.5 text-xs font-semibold text-[var(--on-gold)] tabular-nums">
-                        {totalItems}
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
-              </ul>
-
-              {isAdmin ? (
-                <div className="mt-6 border-t border-[var(--border)] pt-4">
-                  <Link
-                    href="/admin"
-                    className={`${drawerLinkClass} border border-[var(--gold)]/35 bg-[var(--gold)]/10 text-[var(--gold)]`}
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Admin
-                  </Link>
+                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
-              ) : null}
 
-              {!isSignedIn ? (
-                <div className="mt-8 space-y-3 border-t border-[var(--border)] pt-6">
-                  <SignInButton mode="modal">
-                    <button
-                      type="button"
-                      className="flex min-h-12 w-full items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)]/40 px-4 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--nav-hover)]"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Log in
-                    </button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
-                    <button
-                      type="button"
-                      className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--on-gold)] transition hover:bg-[var(--gold-hover)]"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Sign up
-                    </button>
-                  </SignUpButton>
-                </div>
-              ) : null}
-            </nav>
-          </aside>
-        </>
-      ) : null}
+                <nav className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+                  <ul className="space-y-1">
+                    <li>
+                      <Link href="/products" className={drawerLinkClass} onClick={() => setMenuOpen(false)}>
+                        Products
+                      </Link>
+                    </li>
+                    <li>
+                      <Link href="/shop" className={drawerLinkClass} onClick={() => setMenuOpen(false)}>
+                        Categories
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/wishlist"
+                        className={`${drawerLinkClass} justify-between gap-4`}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span>Wishlist</span>
+                        {wishCount > 0 ? (
+                          <span className="rounded-full bg-[var(--gold)]/25 px-2 py-0.5 text-xs font-semibold text-[var(--gold)] tabular-nums">
+                            {wishCount}
+                          </span>
+                        ) : null}
+                      </Link>
+                    </li>
+                    <li>
+                      <Link
+                        href="/cart"
+                        className={`${drawerLinkClass} justify-between gap-4`}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span>Cart</span>
+                        {totalItems > 0 ? (
+                          <span className="rounded-full bg-[var(--gold)] px-2 py-0.5 text-xs font-semibold text-[var(--on-gold)] tabular-nums">
+                            {totalItems}
+                          </span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  </ul>
+
+                  {isAdmin ? (
+                    <div className="mt-6 border-t border-[var(--border)] pt-4">
+                      <Link
+                        href="/admin"
+                        className={`${drawerLinkClass} border border-[var(--gold)]/35 bg-[var(--gold)]/10 text-[var(--gold)]`}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Admin
+                      </Link>
+                    </div>
+                  ) : null}
+
+                  {!isSignedIn ? (
+                    <div className="mt-8 space-y-3 border-t border-[var(--border)] pt-6">
+                      <SignInButton mode="modal">
+                        <button
+                          type="button"
+                          className="flex min-h-12 w-full items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)]/40 px-4 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--nav-hover)]"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          Log in
+                        </button>
+                      </SignInButton>
+                      <SignUpButton mode="modal">
+                        <button
+                          type="button"
+                          className="flex min-h-12 w-full items-center justify-center rounded-xl bg-[var(--gold)] px-4 text-sm font-semibold text-[var(--on-gold)] transition hover:bg-[var(--gold-hover)]"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          Sign up
+                        </button>
+                      </SignUpButton>
+                    </div>
+                  ) : null}
+                </nav>
+              </aside>
+            </>,
+            document.body,
+          )
+        : null}
     </header>
   );
 }
