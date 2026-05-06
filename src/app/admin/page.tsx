@@ -71,6 +71,18 @@ export default async function AdminDashboardPage() {
         </li>
         <li>
           <Link
+            href="/admin/users"
+            className="block rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 backdrop-blur-sm transition hover:border-[var(--gold)]/30 hover:shadow-lg hover:shadow-black/20"
+          >
+            <h3 className="font-display text-lg font-semibold text-[var(--foreground)]">Users</h3>
+            <p className="mt-1 text-sm text-[var(--foreground-muted)]">
+              View all signups and grant/revoke admin role
+            </p>
+            <p className="mt-4 text-sm font-medium text-[var(--gold)]">Open users →</p>
+          </Link>
+        </li>
+        <li>
+          <Link
             href="/admin/settings"
             className="block rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 backdrop-blur-sm transition hover:border-[var(--gold)]/30 hover:shadow-lg hover:shadow-black/20"
           >
