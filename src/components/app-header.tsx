@@ -12,7 +12,7 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
   const { count: wishCount } = useWishlist();
 
   const navLinkClass =
-    "inline-flex min-h-11 shrink-0 items-center rounded-lg px-3 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--foreground)]";
+    "flex min-h-[2.75rem] min-w-0 flex-col items-center justify-center gap-0.5 rounded-lg px-1.5 py-1.5 text-center text-[10px] font-medium leading-tight text-[var(--foreground-muted)] transition-colors hover:bg-[var(--nav-hover)] hover:text-[var(--foreground)] sm:min-h-11 sm:flex-row sm:gap-1.5 sm:whitespace-nowrap sm:px-3 sm:py-2 sm:text-sm";
 
   return (
     <header className="relative sticky top-0 z-50 border-b border-[var(--border)] bg-gradient-to-b from-[var(--surface-solid)]/95 to-[var(--surface-solid)]/88 shadow-[var(--header-shadow)] backdrop-blur-xl supports-[backdrop-filter]:bg-[var(--surface-solid)]/80">
@@ -20,7 +20,7 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
         className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--gold)]/45 to-transparent"
         aria-hidden
       />
-      <div className="relative mx-auto flex max-w-6xl flex-col gap-3 px-3 py-3 sm:h-[4.25rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-0">
+      <div className="relative mx-auto flex max-w-6xl min-w-0 flex-col gap-3 px-3 py-3 sm:h-[4.25rem] sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-6 sm:py-0">
         <Link
           href="/"
           className="group flex min-h-11 shrink-0 items-center gap-2.5 sm:gap-3"
@@ -48,50 +48,50 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
           </span>
         </Link>
 
-        <nav className="flex min-h-11 flex-nowrap items-stretch gap-1.5 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] sm:min-h-0 sm:items-center sm:gap-2 sm:overflow-visible sm:pl-2 [&::-webkit-scrollbar]:hidden">
-          <div className="flex flex-nowrap items-stretch gap-0.5 rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 p-1 backdrop-blur-sm sm:rounded-full">
+        <nav className="flex w-full min-w-0 min-h-11 flex-col items-stretch gap-2 sm:min-h-0 sm:w-auto sm:flex-row sm:items-center sm:gap-2 sm:pl-2">
+          <div className="grid grid-cols-2 gap-1 rounded-xl border border-[var(--border)] bg-[var(--surface)]/50 p-1 backdrop-blur-sm sm:flex sm:flex-nowrap sm:rounded-full">
             <Link href="/products" className={`${navLinkClass} rounded-md sm:rounded-full`}>
-              Products
+              <span className="max-w-full break-words sm:break-normal">Products</span>
             </Link>
             <Link href="/shop" className={`${navLinkClass} rounded-md sm:rounded-full`}>
-              Categories
+              <span className="max-w-full break-words sm:break-normal">Categories</span>
             </Link>
-            <Link href="/wishlist" className={`${navLinkClass} gap-1.5 rounded-md sm:rounded-full`}>
-              Wishlist
+            <Link href="/wishlist" className={`${navLinkClass} rounded-md sm:rounded-full`}>
+              <span>Wishlist</span>
               {wishCount > 0 ? (
-                <span className="rounded-full bg-[var(--gold)]/25 px-2 py-0.5 text-xs font-semibold text-[var(--gold)] tabular-nums">
+                <span className="rounded-full bg-[var(--gold)]/25 px-1.5 py-0.5 text-[10px] font-semibold text-[var(--gold)] tabular-nums sm:px-2 sm:text-xs">
                   {wishCount}
                 </span>
               ) : null}
             </Link>
-            <Link href="/cart" className={`${navLinkClass} gap-1.5 rounded-md sm:rounded-full`}>
-              Cart
+            <Link href="/cart" className={`${navLinkClass} rounded-md sm:rounded-full`}>
+              <span>Cart</span>
               {totalItems > 0 ? (
-                <span className="rounded-full bg-[var(--gold)] px-2 py-0.5 text-xs font-semibold text-[var(--on-gold)] tabular-nums shadow-sm">
+                <span className="rounded-full bg-[var(--gold)] px-1.5 py-0.5 text-[10px] font-semibold text-[var(--on-gold)] tabular-nums shadow-sm sm:px-2 sm:text-xs">
                   {totalItems}
                 </span>
               ) : null}
             </Link>
           </div>
 
-          <div className="flex flex-nowrap items-center gap-1.5 pl-0.5 sm:pl-1">
+          <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 pl-0.5 sm:ml-auto sm:w-auto sm:flex-nowrap sm:pl-1">
             <ThemeToggle />
 
             {isAdmin ? (
               <Link
                 href="/admin"
-                className="inline-flex min-h-11 shrink-0 items-center rounded-full border border-[var(--gold)]/45 bg-[var(--gold)]/12 px-3.5 text-sm font-semibold text-[var(--gold)] shadow-sm transition hover:bg-[var(--gold)]/22"
+                className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-full border border-[var(--gold)]/45 bg-[var(--gold)]/12 px-3 py-2 text-xs font-semibold text-[var(--gold)] shadow-sm transition hover:bg-[var(--gold)]/22 sm:min-h-11 sm:px-3.5 sm:text-sm"
               >
                 Admin
               </Link>
             ) : null}
 
             {!isSignedIn ? (
-              <div className="flex shrink-0 items-center gap-1 sm:gap-2">
+              <div className="flex min-w-0 items-center justify-end gap-1 sm:shrink-0 sm:gap-2">
                 <SignInButton mode="modal">
                   <button
                     type="button"
-                    className="min-h-11 rounded-lg px-3 text-sm font-medium text-[var(--foreground-muted)] transition-colors hover:text-[var(--foreground)]"
+                    className="min-h-10 rounded-lg px-2 text-xs font-medium text-[var(--foreground-muted)] transition-colors hover:text-[var(--foreground)] sm:min-h-11 sm:px-3 sm:text-sm"
                   >
                     Log in
                   </button>
@@ -99,14 +99,14 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
                 <SignUpButton mode="modal">
                   <button
                     type="button"
-                    className="min-h-11 shrink-0 rounded-full border border-[var(--border)] bg-[var(--surface-elevated)]/40 px-3.5 text-sm font-medium text-[var(--foreground)] shadow-sm transition hover:border-[var(--gold)]/45 hover:bg-[var(--nav-hover)]"
+                    className="min-h-10 shrink-0 rounded-full border border-[var(--border)] bg-[var(--surface-elevated)]/40 px-3 py-2 text-xs font-medium text-[var(--foreground)] shadow-sm transition hover:border-[var(--gold)]/45 hover:bg-[var(--nav-hover)] sm:min-h-11 sm:px-3.5 sm:text-sm"
                   >
                     Sign up
                   </button>
                 </SignUpButton>
               </div>
             ) : (
-              <div className="flex min-h-11 shrink-0 items-center pl-0.5">
+              <div className="flex min-h-10 shrink-0 items-center justify-end pl-0.5 sm:min-h-11">
                 <UserButton />
               </div>
             )}
