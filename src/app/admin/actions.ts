@@ -1,6 +1,7 @@
 "use server";
 
 import { auth, currentUser } from "@clerk/nextjs/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 import { isAdminUser } from "@/lib/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
@@ -98,6 +99,53 @@ export async function updateWhatsAppNumber(formData: FormData) {
   if (error) throw error;
   revalidatePath("/admin/settings");
   revalidatePath("/cart");
+}
+
+export async function updateContactNumbers(formData: FormData) {
+  await requireAdmin();
+  const orderWhatsApp = String(formData.get("whatsapp_number") ?? "").trim();
+  const floatingWhatsApp = String(formData.get("floating_whatsapp_number") ?? "").trim();
+  const floatingCall = String(formData.get("floating_call_number") ?? "").trim();
+  if (!orderWhatsApp) throw new Error("Order WhatsApp number is required");
+
+  const now = new Date().toISOString();
+  const supabase = createAdminSupabaseClient();
+  const { error } = await supabase.from("site_settings").upsert(
+    [
+      { key: "whatsapp_number", value: orderWhatsApp, updated_at: now },
+      { key: "floating_whatsapp_number", value: floatingWhatsApp, updated_at: now },
+      { key: "floating_call_number", value: floatingCall, updated_at: now },
+    ],
+    { onConflict: "key" },
+  );
+  if (error) throw error;
+  revalidatePath("/admin/settings");
+  revalidatePath("/");
+  revalidatePath("/products");
+  revalidatePath("/shop");
+  revalidatePath("/wishlist");
+  revalidatePath("/cart");
+  revalidatePath("/checkout");
+}
+
+export async function setUserAdminRole(formData: FormData) {
+  await requireAdmin();
+  const userId = String(formData.get("user_id") ?? "").trim();
+  const makeAdmin = String(formData.get("make_admin") ?? "") === "1";
+  if (!userId) throw new Error("Missing user ID");
+
+  const client = await clerkClient();
+  const user = await client.users.getUser(userId);
+  const currentMeta = (user.publicMetadata as Record<string, unknown> | undefined) ?? {};
+  const nextMeta: Record<string, unknown> = { ...currentMeta };
+  if (makeAdmin) {
+    nextMeta.role = "admin";
+  } else {
+    delete nextMeta.role;
+  }
+
+  await client.users.updateUserMetadata(userId, { publicMetadata: nextMeta });
+  revalidatePath("/admin/users");
 }
 
 export async function createCategory(formData: FormData) {
