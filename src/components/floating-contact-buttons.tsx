@@ -25,7 +25,7 @@ export async function FloatingContactButtons() {
   if (!whatsapp && !callNumber) return null;
 
   return (
-    <div className="fixed bottom-[calc(7rem+env(safe-area-inset-bottom))] right-2.5 z-40 flex flex-col gap-2 sm:bottom-6 sm:right-6">
+    <div className="fixed bottom-[calc(5rem+env(safe-area-inset-bottom))] left-3 z-40 flex flex-row gap-2 md:bottom-6 md:right-6 md:left-auto md:flex-col">
       {callNumber ? (
         <a
           href={`tel:${callNumber}`}
