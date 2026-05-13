@@ -1,6 +1,6 @@
 import type { CategoryRow, ProductRow, ProductVariantRow } from "@/lib/catalog";
 import { createProduct, updateProduct } from "@/app/admin/actions";
-import { ProductImageField } from "@/components/admin/product-image-field";
+import { ProductImagesField } from "@/components/admin/product-images-field";
 import { ProductVariantsField } from "@/components/admin/product-variants-field";
 import { priceHintLabel } from "@/lib/site";
 
@@ -51,8 +51,11 @@ export function ProductForm({ categories, product, variants }: Props) {
         />
       </label>
       <div className="block text-sm">
-        <span className="mb-1 block text-[var(--foreground-muted)]">Product image</span>
-        <ProductImageField defaultUrl={product?.image_url ?? ""} />
+        <span className="mb-1 block text-[var(--foreground-muted)]">Product images</span>
+        <p className="mb-2 text-xs text-[var(--foreground-muted)]">
+          First image is used on cards and cart. Shoppers can swipe through all on the product page.
+        </p>
+        <ProductImagesField defaultUrls={product?.image_urls ?? []} />
       </div>
       <label className="block text-sm">
         <span className="text-[var(--foreground-muted)]">{priceHintLabel} (optional)</span>
