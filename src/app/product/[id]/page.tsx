@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getCategories, getProductById, getVariantsForProduct } from "@/lib/catalog";
+import { getCategories, getProductById, getVariantsForProduct, productGalleryImages } from "@/lib/catalog";
+import { ProductImageCarousel } from "@/components/product-image-carousel";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { SoldOutOverlay } from "@/components/sold-out-overlay";
 import { CURRENCY_CODE, priceConfirmedWhatsApp } from "@/lib/site";
@@ -25,7 +25,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description:
         product.description?.trim() ||
         `Shop ${product.name} at Gatumi's Trends Imports.`,
-      images: product.image_url ? [product.image_url] : undefined,
+      images: (() => {
+        const g = productGalleryImages(product);
+        return g.length ? g.slice(0, 4) : undefined;
+      })(),
       type: "website",
     },
   };
@@ -38,6 +41,7 @@ export default async function ProductPage({ params }: Props) {
 
   const [categories, variants] = await Promise.all([getCategories(), getVariantsForProduct(id)]);
   const category = categories.find((c) => c.id === product.category_id);
+  const gallery = productGalleryImages(product);
 
   return (
     <div className="mx-auto max-w-6xl px-3 pb-28 pt-6 sm:px-6 sm:pb-10 sm:pt-10 lg:pb-10">
@@ -50,20 +54,13 @@ export default async function ProductPage({ params }: Props) {
 
       <div className="mt-6 grid gap-8 lg:mt-8 lg:grid-cols-2 lg:gap-10">
         <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-elevated)] sm:aspect-square">
-          {product.image_url ? (
-            <Image
-              src={product.image_url}
-              alt={product.name}
-              fill
-              className={product.sold_out ? "object-cover opacity-90 saturate-[0.85]" : "object-cover"}
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-            />
-          ) : (
-            <div className="flex h-full items-center justify-center text-[var(--foreground-muted)]">
-              No image
-            </div>
-          )}
+          <ProductImageCarousel
+            images={gallery}
+            alt={product.name}
+            soldOut={product.sold_out}
+            priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
+          />
           {product.sold_out ? <SoldOutOverlay /> : null}
         </div>
 
