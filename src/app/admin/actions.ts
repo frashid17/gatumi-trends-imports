@@ -31,6 +31,28 @@ type ParsedVariant = {
   sort_order: number;
 };
 
+function parseImageUrlsFromForm(formData: FormData): string[] {
+  const raw = String(formData.get("image_urls_json") ?? "").trim();
+  if (!raw) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error("Invalid product images data.");
+  }
+  if (!Array.isArray(parsed)) throw new Error("Invalid product images data.");
+  const seen = new Set<string>();
+  const urls: string[] = [];
+  for (const x of parsed) {
+    if (typeof x !== "string") continue;
+    const t = x.trim();
+    if (!t || seen.has(t)) continue;
+    seen.add(t);
+    urls.push(t);
+  }
+  return urls;
+}
+
 function parseVariantsInput(formData: FormData): ParsedVariant[] {
   const raw = String(formData.get("variants_input") ?? "");
   const lines = raw
@@ -177,7 +199,8 @@ export async function createProduct(formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const category_id = String(formData.get("category_id") ?? "") || null;
   const description = String(formData.get("description") ?? "");
-  const image_url = String(formData.get("image_url") ?? "").trim() || null;
+  const image_urls = parseImageUrlsFromForm(formData);
+  const image_url = image_urls[0] ?? null;
   const price_hint = String(formData.get("price_hint") ?? "").trim() || null;
   const stock_quantity = parseStockQuantity(formData);
   const variants = parseVariantsInput(formData);
@@ -192,6 +215,7 @@ export async function createProduct(formData: FormData) {
     category_id,
     description,
     image_url,
+    image_urls,
     price_hint,
     stock_quantity,
     sold_out,
@@ -212,7 +236,8 @@ export async function updateProduct(id: string, formData: FormData) {
   const name = String(formData.get("name") ?? "").trim();
   const category_id = String(formData.get("category_id") ?? "") || null;
   const description = String(formData.get("description") ?? "");
-  const image_url = String(formData.get("image_url") ?? "").trim() || null;
+  const image_urls = parseImageUrlsFromForm(formData);
+  const image_url = image_urls[0] ?? null;
   const price_hint = String(formData.get("price_hint") ?? "").trim() || null;
   const stock_quantity = parseStockQuantity(formData);
   const variants = parseVariantsInput(formData);
@@ -227,6 +252,7 @@ export async function updateProduct(id: string, formData: FormData) {
       category_id,
       description,
       image_url,
+      image_urls,
       price_hint,
       stock_quantity,
       sold_out,
