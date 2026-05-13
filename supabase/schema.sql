@@ -15,6 +15,7 @@ create table if not exists products (
   name text not null,
   description text not null default '',
   image_url text,
+  image_urls jsonb not null default '[]'::jsonb,
   price_hint text,
   stock_quantity integer null,
   sold_out boolean not null default false,
