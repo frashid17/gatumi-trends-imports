@@ -14,6 +14,8 @@ export type ProductRow = {
   name: string;
   description: string;
   image_url: string | null;
+  /** Ordered gallery URLs; first is mirrored in `image_url` on write. */
+  image_urls: string[];
   price_hint: string | null;
   stock_quantity: number | null;
   sold_out: boolean;
@@ -256,10 +258,34 @@ function normalizeProductRows(data: unknown): ProductRow[] {
   return (data as ProductRow[] | null)?.map(normalizeProductRow) ?? [];
 }
 
+function parseImageUrlsColumn(raw: unknown): string[] {
+  if (raw == null) return [];
+  if (Array.isArray(raw)) {
+    return raw
+      .filter((x): x is string => typeof x === "string")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  return [];
+}
+
+/** Images for PDP / OG: prefers `image_urls`, falls back to legacy `image_url` only. */
+export function productGalleryImages(product: ProductRow): string[] {
+  if (product.image_urls.length > 0) return product.image_urls;
+  return product.image_url ? [product.image_url] : [];
+}
+
 /** Older DBs may not have stock_quantity until migration is applied. */
-function normalizeProductRow(row: ProductRow): ProductRow {
+function normalizeProductRow(row: ProductRow & { image_urls?: unknown }): ProductRow {
+  let image_urls = parseImageUrlsColumn(row.image_urls);
+  const image_url = row.image_url?.trim() || null;
+  if (!image_urls.length && image_url) {
+    image_urls = [image_url];
+  }
   return {
     ...row,
+    image_url,
+    image_urls,
     stock_quantity:
       row.stock_quantity === undefined || row.stock_quantity === null
         ? null
