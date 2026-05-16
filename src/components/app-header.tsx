@@ -105,7 +105,7 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
             <Link href="/products" className={desktopNavLinkClass}>
               Products
             </Link>
-            <Link href="/shop" className={desktopNavLinkClass}>
+            <Link href="/products" className={desktopNavLinkClass}>
               Categories
             </Link>
             <Link href="/wishlist" className={`${desktopNavLinkClass} gap-1.5`}>
@@ -228,7 +228,7 @@ export function AppHeader({ isAdmin }: { isAdmin: boolean }) {
                       </Link>
                     </li>
                     <li>
-                      <Link href="/shop" className={drawerLinkClass} onClick={() => setMenuOpen(false)}>
+                      <Link href="/products" className={drawerLinkClass} onClick={() => setMenuOpen(false)}>
                         Categories
                       </Link>
                     </li>
