@@ -1,11 +1,15 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import {
+  getAllProducts,
   getCategories,
   getFeaturedProducts,
   getVariantsByProductIds,
 } from "@/lib/catalog";
-import { ProductCard } from "@/components/product-card";
+import type { ProductVariantRow } from "@/lib/catalog";
+import { HomeShopByCategory } from "@/components/shop/home-shop-by-category";
+import { ProductGrid } from "@/components/shop/product-grid";
+import { ProductGridCard } from "@/components/shop/product-grid-card";
 import { CURRENCY_CODE } from "@/lib/site";
 
 export const metadata: Metadata = {
@@ -17,6 +21,7 @@ export const metadata: Metadata = {
 export default async function HomePage() {
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
   let featured: Awaited<ReturnType<typeof getFeaturedProducts>> = [];
+  let catalogProducts: Awaited<ReturnType<typeof getAllProducts>> = [];
   let error: string | null = null;
   try {
     categories = await getCategories();
@@ -31,11 +36,20 @@ export default async function HomePage() {
     featured = [];
   }
 
-  let featuredVariants: Awaited<ReturnType<typeof getVariantsByProductIds>> = {};
   try {
-    featuredVariants = await getVariantsByProductIds(featured.map((p) => p.id));
+    catalogProducts = await getAllProducts();
   } catch {
-    featuredVariants = {};
+    catalogProducts = [];
+  }
+
+  const variantProductIds = [
+    ...new Set([...featured.map((p) => p.id), ...catalogProducts.map((p) => p.id)]),
+  ];
+  let variantMap: Record<string, ProductVariantRow[]> = {};
+  try {
+    variantMap = await getVariantsByProductIds(variantProductIds);
+  } catch {
+    variantMap = {};
   }
 
   return (
@@ -69,7 +83,7 @@ export default async function HomePage() {
             Browse collection
           </Link>
           <Link
-            href="/shop"
+            href="#shop-by-category"
             className="inline-flex min-h-12 w-full items-center justify-center rounded-xl border border-[var(--border)] bg-transparent px-6 py-3.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--gold)]/40 hover:bg-[var(--nav-hover)] active:scale-[0.98] sm:w-auto"
           >
             View categories
@@ -113,26 +127,27 @@ export default async function HomePage() {
               See all products →
             </Link>
           </div>
-          <ul className="mt-8 grid grid-cols-1 gap-5 sm:mt-10 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+          <div className="mt-8 sm:mt-10">
+          <ProductGrid>
             {featured.map((p) => (
               <li key={p.id}>
-                <ProductCard
-                  product={p}
-                  categorySlug={p.categoryName ?? "Featured"}
-                  variants={featuredVariants[p.id] ?? []}
-                />
+                <ProductGridCard product={p} variants={variantMap[p.id] ?? []} />
               </li>
             ))}
-          </ul>
+          </ProductGrid>
+          </div>
         </section>
       ) : null}
 
-      <section className="mx-auto max-w-6xl px-3 pb-16 sm:px-6 sm:pb-20">
+      <section
+        id="shop-by-category"
+        className="mx-auto max-w-6xl scroll-mt-20 px-3 pb-16 sm:px-6 sm:pb-20"
+      >
         <h2 className="font-display text-xl font-semibold text-[var(--foreground)] sm:text-3xl">
           Shop by category
         </h2>
         <p className="mt-2 text-sm text-[var(--foreground-muted)] sm:text-base">
-          Tap a category — built for quick browsing on your phone.
+          Swipe categories, then browse in a three-column grid on any device.
         </p>
 
         {error ? (
@@ -140,30 +155,11 @@ export default async function HomePage() {
             {error}
           </p>
         ) : (
-          <ul className="mt-8 grid grid-cols-1 gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            {categories.map((c) => (
-              <li key={c.id}>
-                <Link
-                  href={`/shop/${c.slug}`}
-                  className="group relative block min-h-[100px] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-5 backdrop-blur-sm transition active:scale-[0.99] sm:min-h-0 sm:p-6 hover:border-[var(--gold)]/35 hover:shadow-lg hover:shadow-black/20"
-                >
-                  <span className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-[var(--gold)]/10 transition group-hover:bg-[var(--gold)]/20" aria-hidden />
-                  <h3 className="font-display relative text-base font-semibold text-[var(--foreground)] sm:text-lg">
-                    {c.name}
-                  </h3>
-                  <p className="relative mt-2 text-sm text-[var(--foreground-muted)]">
-                    Explore {c.name.toLowerCase()}
-                  </p>
-                  <span className="relative mt-4 inline-flex items-center text-sm font-medium text-[var(--gold)]">
-                    Shop now
-                    <span className="ml-1 transition group-hover:translate-x-0.5" aria-hidden>
-                      →
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+          <HomeShopByCategory
+            categories={categories}
+            products={catalogProducts}
+            variantMap={variantMap}
+          />
         )}
       </section>
     </div>
