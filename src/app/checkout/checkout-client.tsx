@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { applyCheckoutStockDecrement } from "@/app/cart/actions";
 import { buildWhatsAppOrderUrl, normalizeWhatsAppNumber } from "@/lib/whatsapp";
 import { buildWhatsAppOrderMessage } from "@/lib/order-message";
-import { CURRENCY_CODE } from "@/lib/site";
+import { CURRENCY_CODE, getPublicSiteOriginForOrderLinks } from "@/lib/site";
 import type { ProductRow, ProductVariantRow } from "@/lib/catalog";
 
 function defaultVariantSelection(
@@ -78,9 +78,10 @@ export function CheckoutClient({
         price_hint: product.price_hint,
         size,
         color,
+        productId: product.id,
       },
     ];
-  }, [product.name, product.price_hint, selectedVariant?.size, selectedVariant?.color, qty]);
+  }, [product.id, product.name, product.price_hint, selectedVariant?.size, selectedVariant?.color, qty]);
 
   const message = useMemo(
     () =>
@@ -89,6 +90,7 @@ export function CheckoutClient({
         clientPhone,
         clientLocation,
         note,
+        siteOrigin: getPublicSiteOriginForOrderLinks(),
         lines: messageLines,
         email: user?.primaryEmailAddress?.emailAddress ?? null,
       }),
