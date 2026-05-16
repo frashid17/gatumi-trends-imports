@@ -6,6 +6,8 @@ export type OrderMessageLine = {
   price_hint: string | null;
   size: string | null;
   color: string | null;
+  /** When set with `siteOrigin`, a product page link is appended for this line. */
+  productId?: string | null;
 };
 
 export function buildWhatsAppOrderMessage(params: {
@@ -15,8 +17,11 @@ export function buildWhatsAppOrderMessage(params: {
   note: string;
   lines: OrderMessageLine[];
   email?: string | null;
+  /** Public site origin (no trailing slash); used with each line’s `productId` for product links. */
+  siteOrigin?: string | null;
 }): string {
-  const { clientName, clientPhone, clientLocation, note, lines, email } = params;
+  const { clientName, clientPhone, clientLocation, note, lines, email, siteOrigin } = params;
+  const origin = (siteOrigin ?? "").trim().replace(/\/+$/, "");
 
   const header = `Order — Gatumi's Trends Imports`;
 
@@ -38,7 +43,10 @@ export function buildWhatsAppOrderMessage(params: {
         : `To be confirmed (${CURRENCY_CODE})`;
       const qtyPart = l.qty > 1 ? ` × ${l.qty}` : "";
       const variant = [l.size, l.color].filter(Boolean).join(" / ");
-      return `${i + 1}) ${l.name}${variant ? ` (${variant})` : ""}${qtyPart}\n   Price: ${pricePart}`;
+      const pid = l.productId?.trim();
+      const linkPart =
+        origin && pid ? `\n   Product link: ${origin}/product/${pid}` : "";
+      return `${i + 1}) ${l.name}${variant ? ` (${variant})` : ""}${qtyPart}\n   Price: ${pricePart}${linkPart}`;
     }),
   ].join("\n");
 
