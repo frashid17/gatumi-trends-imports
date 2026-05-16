@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { useCart } from "@/components/cart/cart-context";
 import { buildWhatsAppOrderUrl, normalizeWhatsAppNumber } from "@/lib/whatsapp";
 import { buildWhatsAppOrderMessage } from "@/lib/order-message";
-import { CURRENCY_CODE } from "@/lib/site";
+import { CURRENCY_CODE, getPublicSiteOriginForOrderLinks } from "@/lib/site";
 import { applyCheckoutStockDecrement } from "@/app/cart/actions";
 
 export function CartClient({
@@ -36,12 +36,14 @@ export function CartClient({
         clientPhone,
         clientLocation,
         note,
+        siteOrigin: getPublicSiteOriginForOrderLinks(),
         lines: lines.map((l) => ({
           name: l.name,
           qty: l.qty,
           price_hint: l.price_hint,
           size: l.size,
           color: l.color,
+          productId: l.productId,
         })),
         email: user?.primaryEmailAddress?.emailAddress ?? null,
       }),
