@@ -8,12 +8,14 @@ export function ProductCardWishlist({
   image_url,
   price_hint,
   disabled,
+  compact = false,
 }: {
   productId: string;
   name: string;
   image_url: string | null;
   price_hint: string | null;
   disabled?: boolean;
+  compact?: boolean;
 }) {
   const { has, toggle, ready } = useWishlist();
   const saved = has(productId);
@@ -25,7 +27,9 @@ export function ProductCardWishlist({
       aria-pressed={saved}
       aria-label={saved ? "Remove from wishlist" : "Add to wishlist"}
       title={saved ? "Remove from wishlist" : "Save to wishlist"}
-      className={`absolute right-2 top-2 z-20 flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border)] shadow-md backdrop-blur-sm transition ${
+      className={`absolute z-20 flex items-center justify-center rounded-full border border-[var(--border)] shadow-md backdrop-blur-sm transition ${
+        compact ? "right-1 top-1 h-7 w-7" : "right-2 top-2 h-9 w-9"
+      } ${
         disabled
           ? "cursor-not-allowed opacity-40"
           : "bg-[var(--surface-solid)]/90 hover:border-[var(--gold)]/50 hover:bg-[var(--surface-elevated)]"
@@ -37,7 +41,12 @@ export function ProductCardWishlist({
         toggle({ productId, name, image_url, price_hint });
       }}
     >
-      <svg className="h-5 w-5" viewBox="0 0 24 24" fill={saved ? "currentColor" : "none"} aria-hidden>
+      <svg
+        className={compact ? "h-3.5 w-3.5" : "h-5 w-5"}
+        viewBox="0 0 24 24"
+        fill={saved ? "currentColor" : "none"}
+        aria-hidden
+      >
         <path
           stroke="currentColor"
           strokeWidth={2}
