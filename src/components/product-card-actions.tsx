@@ -8,6 +8,7 @@ import type { ProductVariantRow } from "@/lib/catalog";
 export function ProductCardActions({
   product,
   variants = [],
+  compact = false,
 }: {
   product: {
     id: string;
@@ -18,6 +19,8 @@ export function ProductCardActions({
     stock_quantity: number | null;
   };
   variants?: ProductVariantRow[];
+  /** Tighter layout for 3-column product grids. */
+  compact?: boolean;
 }) {
   const { addLine, lines } = useCart();
   const [selectedVariantId, setSelectedVariantId] = useState<string>(
@@ -66,18 +69,30 @@ export function ProductCardActions({
     });
   }
 
+  const addLabel = product.sold_out || variantSoldOut
+    ? "Sold out"
+    : atCap
+      ? "Max in cart"
+      : "Add to cart";
+
+  const buyLabel = "Buy now";
+
   return (
     <div
-      className="space-y-2 border-t border-[var(--border)] p-3 sm:p-4"
+      className={
+        compact
+          ? "space-y-1 border-t border-[var(--border)] p-1.5 sm:p-2"
+          : "space-y-2 border-t border-[var(--border)] p-3 sm:p-4"
+      }
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => e.stopPropagation()}
       role="presentation"
     >
       {hasVariants ? (
-        <label className="block text-xs">
+        <label className={compact ? "block" : "block text-xs"}>
           <span className="sr-only">Variant</span>
           <select
-            className="ui-select py-2 text-xs"
+            className={compact ? "ui-select py-1 text-[10px] leading-tight" : "ui-select py-2 text-xs"}
             value={selectedVariantId}
             onChange={(e) => setSelectedVariantId(e.target.value)}
           >
@@ -90,29 +105,39 @@ export function ProductCardActions({
           </select>
         </label>
       ) : null}
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+      <div className={compact ? "flex flex-col gap-1" : "flex flex-col gap-2 sm:flex-row sm:flex-wrap"}>
         <button
           type="button"
           disabled={!canPurchase}
           onClick={handleAdd}
-          className="min-h-10 flex-1 rounded-lg bg-[var(--gold)] px-3 py-2 text-center text-xs font-semibold text-[var(--on-gold)] transition hover:bg-[var(--gold-hover)] disabled:cursor-not-allowed disabled:opacity-45"
+          className={
+            compact
+              ? "min-h-8 w-full rounded-md bg-[var(--gold)] px-1 py-1.5 text-center text-[10px] font-semibold leading-tight text-[var(--on-gold)] transition hover:bg-[var(--gold-hover)] disabled:cursor-not-allowed disabled:opacity-45"
+              : "min-h-10 flex-1 rounded-lg bg-[var(--gold)] px-3 py-2 text-center text-xs font-semibold text-[var(--on-gold)] transition hover:bg-[var(--gold-hover)] disabled:cursor-not-allowed disabled:opacity-45"
+          }
         >
-          {product.sold_out || variantSoldOut
-            ? "Sold out"
-            : atCap
-              ? "Max in cart"
-              : "Add to cart"}
+          {addLabel}
         </button>
         {!canPurchase ? (
-          <span className="min-h-10 flex flex-1 cursor-not-allowed items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-center text-xs font-semibold opacity-45">
-            Buy now
+          <span
+            className={
+              compact
+                ? "flex min-h-8 w-full cursor-not-allowed items-center justify-center rounded-md border border-[var(--border)] px-1 py-1.5 text-center text-[10px] font-semibold leading-tight opacity-45"
+                : "min-h-10 flex flex-1 cursor-not-allowed items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-center text-xs font-semibold opacity-45"
+            }
+          >
+            {buyLabel}
           </span>
         ) : (
           <Link
             href={checkoutHref}
-            className="min-h-10 flex flex-1 items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-center text-xs font-semibold transition hover:border-[var(--gold)]/40 hover:bg-[var(--nav-hover)]"
+            className={
+              compact
+                ? "flex min-h-8 w-full items-center justify-center rounded-md border border-[var(--border)] px-1 py-1.5 text-center text-[10px] font-semibold leading-tight transition hover:border-[var(--gold)]/40 hover:bg-[var(--nav-hover)]"
+                : "min-h-10 flex flex-1 items-center justify-center rounded-lg border border-[var(--border)] px-3 py-2 text-center text-xs font-semibold transition hover:border-[var(--gold)]/40 hover:bg-[var(--nav-hover)]"
+            }
           >
-            Buy now
+            {buyLabel}
           </Link>
         )}
       </div>
